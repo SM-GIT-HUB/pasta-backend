@@ -1,6 +1,6 @@
 import crypto from "crypto"
 
-import { cache } from "../cache/CacheManager.js"
+import cacheService from "./CacheService.js"
 import sessionRepository from "../repositories/SessionRepository.js"
 
 class SessionService {
@@ -25,7 +25,7 @@ class SessionService {
             userId
         })
 
-        cache.sessions.set(sessionHash, session);
+        cacheService.setSession(sessionHash, session);
 
         return sessionId;
     }
@@ -34,16 +34,14 @@ class SessionService {
     {
         const sessionHash = this.hashSessionId(sessionId);
 
-        let session = cache.sessions.get(sessionHash);
-
-        const 
+        let session = cacheService.getSession(sessionHash);
 
         if(!session)
         {
             session = await sessionRepository.findById(sessionHash);
 
             if (session) {
-                cache.sessions.set(sessionHash, session);
+                cacheService.setSession(sessionHash, session);
             }
         }
 
@@ -61,7 +59,8 @@ class SessionService {
     async revokeSession(sessionId)
     {
         const sessionHash = this.hashSessionId(sessionId);
-        cache.sessions.delete(sessionHash);
+        cacheService.deleteSession(sessionHash);
+
         return sessionRepository.revoke(sessionHash);
     }
 }
