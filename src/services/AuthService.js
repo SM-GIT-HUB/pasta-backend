@@ -1,6 +1,9 @@
+import { StatusCodes } from "http-status-codes"
+
 import otpService from "./OtpService.js"
 import mailService from "./MailService.js"
 import userService from "./UserService.js"
+import AppError from "../core/AppError.js"
 import sessionService from "./SessionService.js"
 
 class AuthService {
@@ -11,7 +14,7 @@ class AuthService {
         const success = await mailService.sendOtpMail(email, otp);
 
         if(!success) {
-            throw new Error("Failed to send OTP");
+            throw new AppError("Failed to send OTP", StatusCodes.INTERNAL_SERVER_ERROR);
         }
 
         return { success: true };
@@ -22,7 +25,7 @@ class AuthService {
         const isValid = otpService.validateOtp(email, otp);
 
         if(!isValid) {
-            throw new Error("Invalid OTP");
+            throw new AppError("Invalid OTP or OTP expired. Please try again later", StatusCodes.UNAUTHORIZED);
         }
 
         let user = await userService.getUserByEmail(email);
