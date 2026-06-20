@@ -1,36 +1,39 @@
+import otpService from "./OtpService.js"
+import mailService from "./MailService.js"
+import userService from "./UserService.js"
 import sessionService from "./SessionService.js"
-import { cache } from "../cache/CacheManager.js"
-import userRepository from "../repositories/UserRepository.js"
 
 class AuthService {
-    async signup({ email, phoneNumber, publicKey })
+    async sendOtp(email)
     {
-        const existingUser = await userRepository.findByEmail(email);
+        const otp = otpService.createOtp(email);
 
-        if(existingUser) {
-            throw new Error("Email already exists");
+        const success = await mailService.sendOtpMail(email, otp);
+
+        if(!success) {
+            throw new Error("Failed to send OTP");
         }
 
-        const user = await userRepository.create({
-            email,
-            phoneNumber,
-            publicKey
-        })
-
-        cache.usersById.set(user._id.toString(), user);
-        cache.usersByEmail.set(email, user);
-
-        const sessionId = await sessionService.createSession(user._id);
-
-        return { userId: user._id, sessionId };
+        return { success: true };
     }
 
-    async login(email)
+    async verifyOtpAndAuthenticate({ email, phoneNumber, publicKey, otp })
     {
-        const user = await userRepository.findByEmail(email);
+        const isValid = otpService.validateOtp(email, otp);
 
-        if(!user) {
-            throw new Error("User not found");
+        if(!isValid) {
+            throw new Error("Invalid OTP");
+        }
+
+        let user = await userService.getUserByEmail(email);
+
+        if(!user)
+        {
+            user = await userService.createUser({
+                email,
+                phoneNumber,
+                publicKey
+            })
         }
 
         const sessionId = await sessionService.createSession(user._id);
@@ -40,8 +43,9 @@ class AuthService {
 
     async logout(sessionId)
     {
-        cache.users.delete()
         await sessionService.revokeSession(sessionId);
+
+        return { success: true };
     }
 }
 
