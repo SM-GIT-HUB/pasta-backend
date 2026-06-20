@@ -14,7 +14,7 @@ class AuthService {
         const success = await mailService.sendOtpMail(email, otp);
 
         if(!success) {
-            throw new AppError("Failed to send OTP", StatusCodes.INTERNAL_SERVER_ERROR);
+            throw new AppError(StatusCodes.INTERNAL_SERVER_ERROR, "Failed to send OTP");
         }
 
         return { success: true };
@@ -25,7 +25,7 @@ class AuthService {
         const isValid = otpService.validateOtp(email, otp);
 
         if(!isValid) {
-            throw new AppError("Invalid OTP or OTP expired. Please try again later", StatusCodes.UNAUTHORIZED);
+            throw new AppError(StatusCodes.UNAUTHORIZED, "Invalid OTP or OTP expired. Please try again later");
         }
 
         let user = await userService.getUserByEmail(email);
@@ -42,6 +42,11 @@ class AuthService {
         const sessionId = await sessionService.createSession(user._id);
 
         return { userId: user._id, sessionId };
+    }
+
+    async authorize(sessionId)
+    {
+        
     }
 
     async logout(sessionId)
