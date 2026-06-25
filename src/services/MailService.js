@@ -40,7 +40,7 @@ class MailService {
             return true;
         }
         catch(err) {
-            console.error("MailService.sendOtpMail:", err.message);
+            console.error("MailService.sendOtpMail: ", err.message);
             return false;
         }
     }

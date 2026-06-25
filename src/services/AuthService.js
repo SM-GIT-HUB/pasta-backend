@@ -5,6 +5,7 @@ import mailService from "./MailService.js"
 import userService from "./UserService.js"
 import AppError from "../core/AppError.js"
 import sessionService from "./SessionService.js"
+import cacheService from "./CacheService.js"
 
 class AuthService {
     async sendOtp(email)
@@ -32,11 +33,29 @@ class AuthService {
 
         if(!user)
         {
+            const phoneUser = await userService.getUserByPhoneNumber(phoneNumber);
+
+            if(phoneUser) {
+                throw new AppError(StatusCodes.CONFLICT, "Phone number already registered");
+            }
+
             user = await userService.createUser({
                 email,
                 phoneNumber,
                 publicKey
             })
+        }
+        else
+        {
+            if(user.phoneNumber !== phoneNumber) {
+                throw new AppError(StatusCodes.CONFLICT, "Phone number does not match");
+            }
+
+            user = await userService.updatePublicKey(
+                user._id,
+                publicKey,
+                user.keyVersion + 1
+            )
         }
 
         const sessionId = await sessionService.createSession(user._id);
@@ -46,7 +65,19 @@ class AuthService {
 
     async authorize(sessionId)
     {
-        
+        const session = await sessionService.getValidSession(sessionId);
+
+        if(!session) {
+            throw new AppError(StatusCodes.UNAUTHORIZED, "Invalid session");
+        }
+
+        const user = await userService.getUserById(session.userId);
+
+        if(!user) {
+            throw new AppError(StatusCodes.UNAUTHORIZED, "User not found");
+        }
+
+        return { user, session };
     }
 
     async logout(sessionId)

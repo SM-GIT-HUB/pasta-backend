@@ -3,7 +3,7 @@ import { Router } from "express"
 import authController from "../controllers/AuthController.js"
 import authMiddleware from "../middlewares/AuthMiddleware.js"
 
-const router = Router()
+const router = Router();
 
 router.post("/send-otp", authController.sendOtp);
 
