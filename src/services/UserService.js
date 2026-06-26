@@ -66,6 +66,21 @@ class UserService {
         return user;
     }
 
+    async updatePublicKey(userId, publicKey, keyVersion)
+    {
+        const user = await userRepository.updatePublicKey(
+            userId,
+            publicKey,
+            keyVersion
+        )
+
+        if(user) {
+            cacheService.setUser(user);
+        }
+
+        return user;
+    }
+
     removeUser(user)
     {
         cacheService.deleteUser(user);

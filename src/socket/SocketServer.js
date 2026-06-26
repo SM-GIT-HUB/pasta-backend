@@ -1,6 +1,7 @@
 import { Server } from "socket.io"
 
 import socketAuth from "./SocketAuth.js"
+import onlineUsers from "./OnlineUsers.js"
 
 class SocketServer {
     constructor(httpServer)
@@ -13,8 +14,14 @@ class SocketServer {
 
         this.io.use(socketAuth);
 
-        this.io.on("connection", socket => {
-            console.log("Connected:", socket.user.email);
+        this.io.on("connection", (socket) => {
+            onlineUsers.add(socket.user._id, socket.id);
+
+            console.log("Connected:", socket.user.email, ":", socket.id);
+
+            socket.on("disconnect", (reason) => {
+                onlineUsers.remove(socket.user._id, socket.id);
+            })
         })
     }
 }

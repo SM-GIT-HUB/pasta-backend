@@ -17,7 +17,7 @@ class SessionRepository
         return Session.findByIdAndUpdate(
             sessionHash,
             { revoked: true },
-            { new: true }
+            { returnDocument: "after" }
         )
     }
 

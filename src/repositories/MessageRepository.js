@@ -23,7 +23,7 @@ class MessageRepository
                 delivered: true,
                 deliveredAt: new Date()
             },
-            { new: true }
+            { returnDocument: "after" }
         )
     }
 

@@ -26,7 +26,7 @@ class UserRepository {
         return User.findByIdAndUpdate(
             userId,
             { fcmToken },
-            { new: true }
+            { returnDocument: "after" }
         )
     }
 
@@ -38,7 +38,7 @@ class UserRepository {
                 publicKey,
                 keyVersion
             },
-            { new: true }
+            { returnDocument: "after" }
         )
     }
 }

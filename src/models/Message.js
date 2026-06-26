@@ -60,7 +60,7 @@ const messageSchema = new mongoose.Schema({
         required: true,
         default: Date.now,
     },
-},  { timestamps: false } )
+},  { timestamps: true } )
 
 messageSchema.index({ receiverId: 1, delivered: 1 });
 messageSchema.index({ senderId: 1, receiverId: 1, timestamp: 1 });
