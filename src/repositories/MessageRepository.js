@@ -7,6 +7,11 @@ class MessageRepository
         return Message.create(messageData);
     }
 
+    async createMany(messagesData)
+    {
+        return Message.insertMany(messagesData);
+    }
+
     async findPendingForReceiver(receiverId)
     {
         return Message.find({
