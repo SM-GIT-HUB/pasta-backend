@@ -21,6 +21,15 @@ class UserRepository {
         return User.findOne({ phoneNumber });
     }
 
+    async findByPhoneNumbers(phoneNumbers)
+    {
+        return User.find({
+            phoneNumber: {
+                $in: phoneNumbers
+            }
+        })
+    }
+
     async updateFCMToken(userId, fcmToken)
     {
         return User.findByIdAndUpdate(

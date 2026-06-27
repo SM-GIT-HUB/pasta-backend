@@ -55,6 +55,13 @@ class UserService {
         return user;
     }
 
+    async getUsersByPhoneNumbers(phoneNumbers)
+    {
+        return userRepository.findByPhoneNumbers(
+            phoneNumbers
+        )
+    }
+
     async createUser({ email, phoneNumber, publicKey })
     {
         email = email.toLowerCase();
